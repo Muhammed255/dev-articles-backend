@@ -1,14 +1,13 @@
-import path from 'path';
-import express from 'express';
-import mongoose from 'mongoose';
 import compression from 'compression';
 import cors from "cors";
+import express from 'express';
+import mongoose from 'mongoose';
 
-import { authRouter } from './routes/auth.routes.js';
 import { appConfig } from './config/app-config.js';
+import { articlePostRoutes } from './routes/article-post.routes.js';
+import { authRouter } from './routes/auth.routes.js';
 import { categoryRoutes } from './routes/category.routes.js';
 import { topicRoutes } from './routes/topic.routes.js';
-import { articlePostRoutes } from './routes/article-post.routes.js';
 
 const app = express();
 
@@ -23,12 +22,7 @@ app.use(express.json());
 // Mongoose Connection to Database
 mongoose.Promise = global.Promise;
 
-mongoose.connect(appConfig.DATABASE_URL, {
-        useFindAndModify: false,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true
-    })
+mongoose.connect(appConfig.DATABASE_URL)
     .then(() => {
         console.log('Connected to mongo db ....');
     })
