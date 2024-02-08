@@ -33,7 +33,7 @@ mongoose.connect(appConfig.DATABASE_URL, {
         console.log('Connected to mongo db ....');
     })
     .catch(err => {
-        console.log('Error occur ' + err);
+        console.log('Error occured ' + err);
     });
 
 
