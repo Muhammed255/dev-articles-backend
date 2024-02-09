@@ -58,6 +58,9 @@ export default {
     let response = { success: false, msg: "", categories: null, maxCats: 0 };
     try {
       const cats = await Category.find().populate("userId").exec();
+			console.log('====================================');
+			console.log(cats);
+			console.log('====================================');
       response.success = true;
       response.msg = "Categories fetched successfully!";
       response.categories = cats;
