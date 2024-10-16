@@ -47,12 +47,12 @@ export default {
       .then((topic) => {
         if (!topic) {
           response.msg = "Error: No Topic found";
-          return res.status(401).json({ response });
+          return res.status(401).json({ ...response });
         }
         response.success = true;
         response.msg = "Topic fetched....";
         response.topic = topic;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -61,12 +61,12 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
 
-  async getAllTopics(req, res, next) {
+  async getAllTopics(req, res, _next) {
     try {
       const topics = await Topic.find().populate("userId");
       return res.status(200).json({success: true, msg: "Fetched", topics});
@@ -95,7 +95,7 @@ export default {
         response.msg = "Topics fetched successfully!";
         response.topics = fetchedTopics;
         response.maxTopics = count;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -105,7 +105,7 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 

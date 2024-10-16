@@ -2,10 +2,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import { appConfig } from "../config/app-config.js";
-import cloudinaryApi from "../config/cloudinary-api.js";
 
 export default {
-  async signup(req, res, next) {
+  async signup(req, res, _next) {
     let response = { success: false, message: "", result: null };
     try {
       const { name, email, username, password, bio } = req.body;
@@ -24,17 +23,17 @@ export default {
       response.message = "account created!";
       response.success = true;
       response.result = newUser;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (err) {
       console.log(err);
       response.message = "Error Occured" + err;
       response.result = null;
       response.success = false;
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
-  async admin_signup(req, res, next) {
+  async admin_signup(req, res, _next) {
     let response = { success: false, message: "", result: null };
     try {
       const { name, email, username, password, bio } = req.body;
@@ -54,12 +53,12 @@ export default {
       response.message = "account created!";
       response.success = true;
       response.result = newUser;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (err) {
       response.message = "Error Occured" + err;
       response.result = null;
       response.success = false;
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
@@ -104,7 +103,7 @@ export default {
       response.userId = user._id;
       response.expiresIn = 86400;
       response.msg = "LoggedIn successfully";
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.token = null;
@@ -114,13 +113,13 @@ export default {
       const error = new Error();
       error.message = err;
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
 
 
-  async getUsers(req, res, next) {
+  async getUsers(req, res, _next) {
     const users = await User.find({});
     if (users.length < 1) res.status(500).json({ message: "No Users found" });
     res.status(200).json({ data: users });
@@ -132,19 +131,19 @@ export default {
       const user = await User.findById(req.params.userId);
       if (!user._id) {
         response.msg = "No user found";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
       response.msg = "fetched...";
       response.success = true;
       response.user = user;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (e) {
-      const err = new Error(err);
+      const err = new Error(e);
       next(err);
       response.msg = "Error Occurred...";
       response.success = false;
       response.user = null;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     }
   },
 
@@ -154,19 +153,19 @@ export default {
       const user = await User.findOne({ username: req.params.username });
       if (!user._id) {
         response.msg = "No user found";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
       response.msg = "fetched...";
       response.success = true;
       response.user = user;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (e) {
-      const err = new Error(err);
+      const err = new Error(e);
       next(err);
       response.msg = "Error Occurred...";
       response.success = false;
       response.user = null;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     }
   },
 
@@ -177,19 +176,19 @@ export default {
       const user = await User.findById(req.userData.userId);
       if (!user._id) {
         response.msg = "No user found";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
       response.msg = "fetched...";
       response.success = true;
       response.user = user;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (err) {
       const error = new Error(err);
       next(error);
       response.msg = "Error Occurred...";
       response.success = false;
       response.user = null;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     }
   },
   /*async updateImage(req, res, next) {
@@ -199,7 +198,7 @@ export default {
       const authUser = await User.findById(req.userData.userId);
       if (!authUser._id) {
         response.msg = "No user found";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
 
       let imagePath = req.body.image;
@@ -215,14 +214,14 @@ export default {
       );
       response.success = true;
       response.msg = "Image updated successfully";
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (err) {
         response.success = false;
         response.msg = "Error Occurred!";
         const error = new Error();
         error.message = err;
         next(error);
-        return res.status(500).json({ response });
+        return res.status(500).json({ ...response });
     }
   },*/
 };

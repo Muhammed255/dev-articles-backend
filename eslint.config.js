@@ -18,7 +18,7 @@ export default [
 		rules: {
 			"no-unused-vars": [
 				"warn",
-				{ vars: "all", args: "after-used", ignoreRestSiblings: false },
+				{ vars: "all", args: "after-used", varsIgnorePattern: "^_", argsIgnorePattern: "^_", ignoreRestSiblings: false },
 			],
 			"unused-imports/no-unused-imports": "warn",
 			"unused-imports/no-unused-vars": [

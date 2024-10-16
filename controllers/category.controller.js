@@ -2,7 +2,7 @@ import Category from "../models/category.model.js";
 import User from "../models/user.model.js";
 
 export default {
-  create_category(req, res, next) {
+  create_category(req, res, _next) {
     const { name, description } = req.body;
     let response = { success: false, msg: "" };
     User.findById(req.userData.userId)
@@ -21,12 +21,12 @@ export default {
       .then(() => {
         response.success = true;
         response.msg = "Created category....";
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
         response.msg = "Error Occurred: " + err;
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
@@ -36,12 +36,12 @@ export default {
       .then((cat) => {
         if (!cat) {
           response.msg = "Error: No Category found";
-          return res.status(401).json({ response });
+          return res.status(401).json({ ...response });
         }
         response.success = true;
         response.msg = "Category fetched....";
         response.category = cat;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -50,7 +50,7 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
@@ -61,7 +61,7 @@ export default {
       response.success = true;
       response.msg = "Categories fetched successfully!";
       response.categories = cats;
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.msg = "Error Occurred!";
@@ -69,7 +69,7 @@ export default {
       response.maxCats = 0;
       const error = new Error(err);
       next(error);
-      res.status(500).json({ response });
+      res.status(500).json({ ...response });
     }
   },
   findAdminCategories(req, res, next) {
@@ -91,7 +91,7 @@ export default {
         response.msg = "Categories fetched successfully!";
         response.categories = fetchedCats;
         response.maxCats = count;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -101,7 +101,7 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
@@ -129,7 +129,7 @@ export default {
       response.success = true;
       response.msg = "Category updated successfully";
       response.category = catToUpdate;
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (e) {
       response.success = false;
       response.msg = "Error Occurred!";
@@ -137,7 +137,7 @@ export default {
       const error = new Error();
       error.message = e;
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
@@ -161,7 +161,7 @@ export default {
       response.success = true;
       response.msg = "Category removed successfully";
       response.category = cat;
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.msg = "Error Occurred!";
@@ -169,7 +169,7 @@ export default {
       const error = new Error();
       error.message = err;
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
@@ -189,7 +189,7 @@ export default {
         response.success = true;
         response.msg = "Fetched....";
         response.topicsByCat = result;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -197,7 +197,7 @@ export default {
         response.topicsByCat = null;
         const error = new Error(err);
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 };
