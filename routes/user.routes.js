@@ -8,6 +8,8 @@ import {
 	updatePassword,
 	updateProfile,
 } from "../controllers/user.controller.js";
+import multer from "multer";
+import { fileFilter } from "./article-post.routes.js";
 
 export const userRoutes = express.Router();
 

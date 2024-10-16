@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-		"build": "netlify build",
+    "build": "netlify build",
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -36,7 +36,9 @@
     "npm": "10.2.3"
   },
   "devDependencies": {
-		"@types/express": "^5.0.0",
+    "@types/express": "^5.0.0",
+    "eslint": "^9.12.0",
+    "eslint-plugin-node": "^11.1.0",
     "nodemon": "^3.0.3"
   }
 }
