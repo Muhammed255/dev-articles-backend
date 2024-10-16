@@ -2,13 +2,14 @@ import compression from 'compression';
 import cors from "cors";
 import express from 'express';
 import mongoose from 'mongoose';
+import serverless from 'serverless-http'
 
 import { appConfig } from './config/app-config.js';
 import { articlePostRoutes } from './routes/article-post.routes.js';
 import { authRouter } from './routes/auth.routes.js';
 import { categoryRoutes } from './routes/category.routes.js';
 import { topicRoutes } from './routes/topic.routes.js';
-
+import routes from './routes/routes.js'
 const app = express();
 
 const port = process.env.PORT || "3000";
@@ -34,15 +35,6 @@ mongoose.connect(appConfig.DATABASE_URL)
 //Setup CORS
 app.use(cors({origin: "*"}))
 
-app.use('/api/users', authRouter);
+routes(app);
 
-app.use('/api/categories', categoryRoutes);
-
-app.use('/api/topics', topicRoutes);
-
-app.use('/api/articles', articlePostRoutes)
-
-
-app.listen(port, () => {
-    console.log("running on port 3000");
-})
+export default app;

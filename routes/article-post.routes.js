@@ -11,7 +11,7 @@ const MIME_TYPE_MAP = {
   "image/png": "png",
 };
 
-const fileFilter = (req, file, cb) => {
+export const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||

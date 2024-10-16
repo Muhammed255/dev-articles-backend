@@ -352,7 +352,6 @@ export default {
       { new: true, upsert: true }
     )
       .then((article) => {
-        console.log(article);
         res.status(200).json({ article: article });
       })
       .catch((error) => {

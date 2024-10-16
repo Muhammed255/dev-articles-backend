@@ -25,16 +25,18 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   accessToken: {
     type: String,
   },
   bio: {
     type: String,
   },
+	gender: { type: String, required: true },
+  birthdate: { type: Date, required: true },
+  address: { type: String, required: true },
+  phone_number: { type: String, required: true },
+  linkedInUrl: { type: String, required: false },
+  stackoverflowUrl: { type: String, required: false },
   bookmarks: [
     {
       type: ObjectId,
@@ -52,11 +54,28 @@ const userSchema = new Schema({
   imageUrl: {
     type: String,
   },
+	cloudinary_id: {
+		type: String
+	},
   role: {
     type: String,
     enum: ["user", "admin"],
     default: "user",
   },
+	followers: [
+    {
+      type: ObjectId,
+      ref: "User",
+      default: [],
+    },
+  ],
+  following: [
+    {
+      type: ObjectId,
+      ref: "User",
+      default: [],
+    },
+  ],
 });
 
 userSchema.plugin(uniqueValidator);
