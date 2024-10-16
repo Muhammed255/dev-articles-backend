@@ -87,7 +87,7 @@ export const unfollowUser = async (req, res) => {
 	}
 };
 
-export const updateProfile = async (req, res, next) => {
+export const updateProfile = async (req, res, _next) => {
 	try {
 		const userId = req.userData.userId;
 
@@ -131,7 +131,7 @@ export const updateProfile = async (req, res, next) => {
 	}
 };
 
-export const updatePassword = async (req, res, next) => {
+export const updatePassword = async (req, res, _next) => {
 	try {
 		const userId = req.userData.userId;
 		const { oldPassword, newPassword } = req.body;

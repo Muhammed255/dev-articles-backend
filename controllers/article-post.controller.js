@@ -13,7 +13,7 @@ export default {
       const user = await User.findById(req.userData.userId);
       if (user.role !== "admin") {
         response.msg = "No Allowed to create article, Only Admins can create";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
 
       const imageResult = await cloudinaryApi.uploader.upload(req.file.path, {
@@ -34,14 +34,14 @@ export default {
       response.msg = "Article created..";
       response.success = true;
       response.article = post;
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.msg = "Error Occurred!";
       const error = new Error();
       error.message = err;
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
@@ -67,7 +67,7 @@ export default {
         response.msg = "Articles fetched successfully!";
         response.articles = fetchedArticles;
         response.maxArticles = count;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -77,7 +77,7 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
@@ -91,13 +91,13 @@ export default {
       .then((article) => {
         if (!article) {
           response.msg = "Error: No article found";
-          return res.status(401).json({ response });
+          return res.status(401).json({ ...response });
         }
 
         response.success = true;
         response.msg = "Article fetched....";
         response.article = article;
-        res.status(200).json({ response });
+        res.status(200).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
@@ -106,7 +106,7 @@ export default {
         const error = new Error();
         error.message = err;
         next(error);
-        res.status(500).json({ response });
+        res.status(500).json({ ...response });
       });
   },
 
@@ -171,13 +171,13 @@ export default {
       response.msg = "Article updated successfully";
       response.newArticle = newArticle;
 
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (e) {
       response.success = false;
       response.msg = "Error Occurred!";
       const error = new Error(e);
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
@@ -205,17 +205,17 @@ export default {
       await ArticlePost.findByIdAndDelete(req.params.postId);
       response.success = true;
       response.msg = "Article removed successfully";
-      res.status(200).json({ response });
+      res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.msg = "Error Occurred!";
       const error = new Error(err);
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 
-  async getArticlesByTopic(req, res, next) {
+  async getArticlesByTopic(req, res, _next) {
     try {
       if (!isValidObjectId(req.params.topicId)) {
         return res
@@ -247,7 +247,7 @@ export default {
     }
   },
 
-  async articles_search(req, res, next) {
+  async articles_search(req, res, _next) {
     try {
       const { searchString } = req.body;
       const docs = await ArticlePost.find({
@@ -272,41 +272,41 @@ export default {
     }
   },
 
-  articleComment(req, res, next) {
+  articleComment(req, res, _next) {
     let response = { success: false, msg: "" };
     // Check if comment was provided in request body
     if (!req.body.comment) {
       response.msg = "No comment provided";
-      res.json({ response }); // Return error message
+      res.json({ ...response }); // Return error message
     } else {
       // Check if id was provided in request body
       if (!req.body.id) {
         response.msg = "No id was provided";
-        res.json({ response }); // Return error message
+        res.json({ ...response }); // Return error message
       } else {
         // Use id to search for article post in database
         ArticlePost.findOne({ _id: req.body.id }, (err, article) => {
           // Check if error was found
           if (err) {
             response.msg = "Invalid article id";
-            res.json({ response }); // Return error message
+            res.json({ ...response }); // Return error message
           } else {
             // Check if id matched the id of any article in the database
             if (!article) {
               response.msg = "article not found.";
-              res.json({ response }); // Return error message
+              res.json({ ...response }); // Return error message
             } else {
               // Grab data of user that is logged in
               User.findOne({ _id: req.userData.userId }, (err, user) => {
                 // Check if error was found
                 if (err) {
                   response.msg = "Something went wrong";
-                  res.json({ response }); // Return error message
+                  res.json({ ...response }); // Return error message
                 } else {
                   // Check if user was found in the database
                   if (!user) {
                     response.msg = "User not found.";
-                    res.json({ response }); // Return error message
+                    res.json({ ...response }); // Return error message
                   } else {
                     // Add the new comment to the article comments array
                     // @ts-ignore
@@ -319,11 +319,11 @@ export default {
                       // Check if error was found
                       if (err) {
                         response.msg = "Something went wrong.";
-                        res.json({ response }); // Return error message
+                        res.json({ ...response }); // Return error message
                       } else {
                         response.success = true;
                         response.msg = "Comment added";
-                        res.json({ response }); // Return success message
+                        res.json({ ...response }); // Return success message
                       }
                     });
                   }
@@ -336,7 +336,7 @@ export default {
     }
   },
 
-  articleCommentReply(req, res, next) {
+  articleCommentReply(req, res, _next) {
     const replyData = {
       "comments.$.replies": {
         reply: req.body.reply,
@@ -366,7 +366,7 @@ export default {
       .then((user) => {
         if (!user) {
           response.msg = "No user found..";
-          res.status(400).json({ response });
+          res.status(400).json({ ...response });
         }
         fetchedUser = user;
         return ArticlePost.findById(req.params.postId);
@@ -374,7 +374,7 @@ export default {
       .then((post) => {
         if (!post) {
           response.msg = "No post found..";
-          res.status(400).json({ response });
+          res.status(400).json({ ...response });
         }
         fetchedUser.bookmarks.push(post._id);
         return fetchedUser.save();
@@ -382,14 +382,14 @@ export default {
       .then(() => {
         response.success = true;
         response.msg = "Bookmarked...";
-        res.status(201).json({ response });
+        res.status(201).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
         response.msg = "Error Occurred..";
         const error = new Error(err);
-        next(err);
-        return res.status(500).json({ response });
+        next(error);
+        return res.status(500).json({ ...response });
       });
   },
 
@@ -400,7 +400,7 @@ export default {
       .then((user) => {
         if (!user) {
           response.msg = "No user found..";
-          res.status(400).json({ response });
+          res.status(400).json({ ...response });
         }
         fetchedUser = user;
         return ArticlePost.findById(req.params.postId);
@@ -408,7 +408,7 @@ export default {
       .then((post) => {
         if (!post) {
           response.msg = "No post found..";
-          res.status(400).json({ response });
+          res.status(400).json({ ...response });
         }
         const postIndex = fetchedUser.bookmarks.findIndex((id) => {
           return id.toString() === post._id;
@@ -422,48 +422,48 @@ export default {
       .then(() => {
         response.success = true;
         response.msg = "Removed from bookmarks...";
-        res.status(201).json({ response });
+        res.status(201).json({ ...response });
       })
       .catch((err) => {
         response.success = false;
         response.msg = "Error Occurred..";
         const error = new Error(err);
-        next(err);
-        return res.status(500).json({ response });
+        next(error);
+        return res.status(500).json({ ...response });
       });
   },
 
-  likeArticle(req, res, next) {
+  likeArticle(req, res, _next) {
     let response = { success: false, msg: "" };
     if (!req.body.id) {
       response.msg = "No id was provided.";
-      res.status(402).json({ response });
+      res.status(402).json({ ...response });
     } else {
       ArticlePost.findOne({ _id: req.body.id }, (err, article) => {
         if (err) {
           response.msg = "Invalid article id";
-          res.status(402).json({ response });
+          res.status(402).json({ ...response });
         } else {
           if (!article) {
             response.msg = "That article was not found.";
-            res.status(404).json({ response });
+            res.status(404).json({ ...response });
           } else {
             User.findOne({ _id: req.userData.userId }, (err, user) => {
               if (err) {
                 response.msg = "Something went wrong.";
-                res.status(500).json({ response });
+                res.status(500).json({ ...response });
               } else {
                 if (!user) {
                   response.msg = "You are not authorized to like this article";
-                  res.status(402).json({ response });
+                  res.status(402).json({ ...response });
                 } else {
                   if (user._id === article.autherId) {
                     response.msg = "Cannot like your own post.";
-                    res.status(500).json({ response });
+                    res.status(500).json({ ...response });
                   } else {
                     if (article.likedBy.includes(user._id)) {
                       response.msg = "You already liked this post.";
-                      res.status(500).json({ response }); // Return error message
+                      res.status(500).json({ ...response }); // Return error message
                     } else {
                       // Check if user who liked post has previously disliked a post
                       if (article.dislikedBy.includes(user._id)) {
@@ -476,11 +476,11 @@ export default {
                         article.save((err) => {
                           if (err) {
                             response.msg = "Something went wrong.";
-                            res.status(500).json({ response });
+                            res.status(500).json({ ...response });
                           } else {
                             response.success = true;
                             response.msg = "article liked!";
-                            res.status(200).json({ response });
+                            res.status(200).json({ ...response });
                           }
                         });
                       } else {
@@ -489,11 +489,11 @@ export default {
                         article.save((err) => {
                           if (err) {
                             response.msg = "Something went wrong.";
-                            res.status(500).json({ response });
+                            res.status(500).json({ ...response });
                           } else {
                             response.success = true;
                             response.msg = "article liked!";
-                            res.status(200).json({ response });
+                            res.status(200).json({ ...response });
                           }
                         });
                       }
@@ -508,38 +508,38 @@ export default {
     }
   },
 
-  disLikeArticle(req, res, next) {
+  disLikeArticle(req, res, _next) {
     let response = { success: false, msg: "" };
     if (!req.body.id) {
       response.msg = "No id was provided.";
-      res.status(402).json({ response });
+      res.status(402).json({ ...response });
     } else {
       ArticlePost.findOne({ _id: req.body.id }, (err, article) => {
         if (err) {
           response.msg = "Invalid article id";
-          res.status(402).json({ response });
+          res.status(402).json({ ...response });
         } else {
           if (!article) {
             response.msg = "That article was not found.";
-            res.status(404).json({ response });
+            res.status(404).json({ ...response });
           } else {
             User.findOne({ _id: req.userData.userId }, (err, user) => {
               if (err) {
                 response.msg = "Something went wrong.";
-                res.status(500).json({ response });
+                res.status(500).json({ ...response });
               } else {
                 if (!user) {
                   response.msg =
                     "You are not authorized to dislike this article";
-                  res.status(402).json({ response });
+                  res.status(402).json({ ...response });
                 } else {
                   if (user._id === article.autherId) {
                     response.msg = "Cannot dislike your own post.";
-                    res.status(500).json({ response });
+                    res.status(500).json({ ...response });
                   } else {
                     if (article.dislikedBy.includes(user._id)) {
                       response.msg = "You already disliked this post.";
-                      res.status(500).json({ response });
+                      res.status(500).json({ ...response });
                     } else {
                       if (article.likedBy.includes(user._id)) {
                         article.likes--;
@@ -550,11 +550,11 @@ export default {
                         article.save((err) => {
                           if (err) {
                             response.msg = "Something went wrong.";
-                            res.status(500).json({ response });
+                            res.status(500).json({ ...response });
                           } else {
                             response.success = true;
                             response.msg = "article disliked!";
-                            res.status(200).json({ response });
+                            res.status(200).json({ ...response });
                           }
                         });
                       } else {
@@ -563,11 +563,11 @@ export default {
                         article.save((err) => {
                           if (err) {
                             response.msg = "Something went wrong.";
-                            res.status(500).json({ response });
+                            res.status(500).json({ ...response });
                           } else {
                             response.success = true;
                             response.msg = "article disliked!";
-                            res.status(200).json({ response });
+                            res.status(200).json({ ...response });
                           }
                         });
                       }
@@ -588,7 +588,7 @@ export default {
       const checkAdmin = await User.findById(req.params.adminId);
       if (checkAdmin.role !== "admin") {
         response.msg = "This User is Not Admin";
-        return res.status(401).json({ response });
+        return res.status(401).json({ ...response });
       }
       const articles = await ArticlePost.find({ autherId: req.params.adminId })
         .populate("autherId")
@@ -599,14 +599,14 @@ export default {
       response.msg = "Fetched ...";
       response.articles = articles;
 
-      return res.status(200).json({ response });
+      return res.status(200).json({ ...response });
     } catch (err) {
       response.success = false;
       response.msg = "Error Occurred!";
       response.articles = null;
       const error = new Error(err);
       next(error);
-      return res.status(500).json({ response });
+      return res.status(500).json({ ...response });
     }
   },
 };
