@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import { appConfig } from "../config/app-config.js";
+import cloudinaryApi from "../config/cloudinary-api.js";
 
 export default {
   async signup(req, res, next) {
@@ -117,7 +118,7 @@ export default {
     }
   },
 
-  
+
 
   async getUsers(req, res, next) {
     const users = await User.find({});

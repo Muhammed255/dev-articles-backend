@@ -1,7 +1,8 @@
 import express from "express";
 import authController from "../controllers/auth.controller.js";
 import { checkAuth } from "./../middleware/check-auth.js";
-
+import multer from "multer";
+import { fileFilter } from "./article-post.routes.js";
 
 export const authRouter = express.Router();
 

@@ -18,8 +18,6 @@ export default {
         transformation: [{ width: 500, height: 500, crop: "limit" }],
       });
 
-      console.log(imageResult);
-
       const newTopic = new Topic({
         name,
         description,
@@ -28,8 +26,6 @@ export default {
         cloudinary_id: imageResult.public_id,
         image: imageResult.secure_url,
       });
-
-      console.log(newTopic);
 
       await newTopic.save();
       response.success = true;
@@ -161,7 +157,7 @@ export default {
         topic.image = imageResult.secure_url;
         topic.cloudinary_id = imageResult.public_id;
       }
-      
+
 
       await topic.save();
 
