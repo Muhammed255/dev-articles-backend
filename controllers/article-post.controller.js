@@ -12,8 +12,8 @@ export default {
 		try {
 			const { title, sub_title, content, topicId } = req.body;
 			const user = await User.findById(req.userData.userId);
-			if (user.role !== "admin") {
-				response.msg = "No Allowed to create article, Only Admins can create";
+			if (!user) {
+				response.msg = "No User found";
 				return res.status(401).json({ ...response });
 			}
 
@@ -59,8 +59,8 @@ export default {
 
 			const count = await ArticlePost.countDocuments(query);
 			const articles = await ArticlePost.find(query)
-				.populate("user")
-				.populate("topic")
+				.populate("autherId")
+				.populate("topicId")
 				.populate("comments")
 				.populate({
 					path: "comments",
@@ -126,8 +126,8 @@ export default {
 			const { title, sub_title, content, topicId } = req.body;
 
 			const authUser = await User.findById(req.userData.userId);
-			if (authUser.role !== "admin") {
-				response.msg = "Unauthorized..";
+			if (!authUser) {
+				response.msg = "No user found";
 				return res.status(401).send({ response });
 			}
 
@@ -160,7 +160,7 @@ export default {
 			}
 
 			if (req.file) {
-				await cloudinaryApi.uploader.destroy(article.cloudinary_id, {
+				article.cloudinary_id && await cloudinaryApi.uploader.destroy(article.cloudinary_id, {
 					resource_type: "image",
 					invalidate: true,
 				});
