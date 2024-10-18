@@ -15,6 +15,7 @@ topicRoutes.post(
 topicRoutes.get("/get-all", topicController.findAllTopics);
 topicRoutes.get("/admin-topics", checkAuth, topicController.findAllTopics);
 topicRoutes.get("/all-topics", topicController.getAllTopics)
+topicRoutes.get("/get-other-topics/:topicId", topicController.getOtherTopics);
 
 topicRoutes
   .route("/:topicId")
