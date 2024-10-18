@@ -18,7 +18,7 @@ commentReplyRoutes.use(checkAuth);
 commentReplyRoutes.post("/add-comment", articleComment);
 commentReplyRoutes.put("/edit-comment", editComment);
 commentReplyRoutes.delete("/remove-comment/:id", removeComment);
-commentReplyRoutes.get(
+commentReplyRoutes.post(
 	"/latest-comments/:articleId",
 	getArticleLatestComments
 );
