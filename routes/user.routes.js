@@ -2,6 +2,7 @@ import express from "express";
 import { checkAuth } from "../middleware/check-auth.js";
 import {
 	followUser,
+	getDashboard,
 	isFollow,
 	unfollowUser,
 	updateImage,
@@ -12,6 +13,8 @@ import multer from "multer";
 import { fileFilter } from "./article-post.routes.js";
 
 export const userRoutes = express.Router();
+
+userRoutes.get("/get-dashboard", checkAuth, getDashboard);
 
 userRoutes.put("/update-profile", checkAuth, updateProfile);
 
