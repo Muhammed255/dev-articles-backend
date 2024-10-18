@@ -108,6 +108,42 @@ const UserLikedPostSchema = new mongoose.Schema({
   type: String
 });
 
+
+articlePostSchema.statics.countAllComments = async function() {
+  const result = await this.aggregate([
+    {
+      $project: {
+        commentCount: { $size: "$comments" },
+        replyCount: {
+          $reduce: {
+            input: "$comments",
+            initialValue: 0,
+            in: { $add: ["$$value", { $size: "$$this.replies" }] }
+          }
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalComments: { $sum: "$commentCount" },
+        totalReplies: { $sum: "$replyCount" }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        totalComments: 1,
+        totalReplies: 1,
+        totalInteractions: { $add: ["$totalComments", "$totalReplies"] }
+      }
+    }
+  ]);
+
+  return result[0] || { totalComments: 0, totalReplies: 0, totalInteractions: 0 };
+};
+
+
 articlePostSchema.index({ title: "text", sub_title: "text", content: "text" });
 
 const ArticlePost = mongoose.model('ArticlePost', articlePostSchema);

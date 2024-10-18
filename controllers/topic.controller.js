@@ -213,4 +213,22 @@ export default {
       return res.status(500).json(response);
     }
   },
+
+	async getOtherTopics(req, res, _next) {
+		try {
+			const currentTopicId = req.params.topicId;
+			const topics = await Topic.find({ _id: { $ne: currentTopicId } }).populate('userId');
+
+			return res.status(200).json({
+				success: true,
+				msg: 'Fetched',
+				topics,
+			});
+		} catch (err) {
+			return res.status(500).json({
+				success: false,
+				msg: 'Error: ' + err.message,
+			});
+		}
+	}
 };

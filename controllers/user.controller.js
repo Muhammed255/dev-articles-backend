@@ -1,4 +1,7 @@
 import cloudinaryApi from "../config/cloudinary-api.js";
+import { ArticlePost, UserLikedPost } from "../models/article-post.model.js";
+import Category from "../models/category.model.js";
+import Topic from "../models/topic.model.js";
 import User from "../models/user.model.js";
 
 // Follow a user
@@ -230,3 +233,45 @@ export const isFollow = async (req, res) => {
 		return res.status(500).json({ success: false, msg: "Server error." });
 	}
 };
+
+export const getDashboard = async (req, res) => {
+	try {
+			const authAdmin = await User.findOne({ _id: req.userData.userId, role: 'admin' });
+			if (!authAdmin) {
+					return res.status(404).json({ success: false, msg: "No Admin found!" });
+			}
+
+			const [
+					categoriesCount,
+					topicsCount,
+					articlesCount,
+					commentsCount, //{ totalComments: number, totalReplies: number, totalInteractions(comments and replies): number }
+					repliesCount,
+					likesCount,
+					dislikesCount
+			] = await Promise.all([
+					Category.countDocuments(),
+					Topic.countDocuments(),
+					ArticlePost.countDocuments(),
+					ArticlePost.countAllComments(),
+					UserLikedPost.countDocuments({ type: 'like' }),
+					UserLikedPost.countDocuments({ type: 'dislike' })
+			]);
+
+			return res.status(200).json({
+					success: true,
+					msg: "Fetched!",
+					data: {
+							categoriesCount,
+							topicsCount,
+							articlesCount,
+							commentsCount,
+							repliesCount,
+							likesCount,
+							dislikesCount,
+					},
+			});
+	} catch (err) {
+			return res.status(500).json({ success: false, msg: "Error occurred: " + err.message });
+	}
+}
