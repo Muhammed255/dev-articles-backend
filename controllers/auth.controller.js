@@ -5,7 +5,7 @@ import { appConfig } from "../config/app-config.js";
 
 export default {
   async signup(req, res, _next) {
-    let response = { success: false, message: "", result: null };
+    let response = { success: false, msg: "", result: null };
     try {
       const { name, email, username, password, bio } = req.body;
       const salt = await bcrypt.genSalt();
@@ -34,7 +34,7 @@ export default {
   },
 
   async admin_signup(req, res, _next) {
-    let response = { success: false, message: "", result: null };
+    let response = { success: false, msg: "", result: null };
     try {
       const { name, email, username, password, bio } = req.body;
       const salt = await bcrypt.genSalt();
@@ -78,7 +78,7 @@ export default {
       if (!user) {
         response.msg = "Auth failed .... Email is not registered";
         return res.status(401).json({
-          response,
+          ...response,
         });
       }
 
@@ -86,7 +86,7 @@ export default {
       if (!compare) {
         response.msg = "Auth failed ... Password is incorrect";
         return res.status(401).json({
-          response,
+          ...response,
         });
       }
       const token = jwt.sign(
@@ -121,7 +121,7 @@ export default {
 
   async getUsers(req, res, _next) {
     const users = await User.find({});
-    if (users.length < 1) res.status(500).json({ message: "No Users found" });
+    if (users.length < 1) res.status(500).json({ msg: "No Users found" });
     res.status(200).json({ data: users });
   },
 
