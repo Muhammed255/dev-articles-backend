@@ -109,11 +109,7 @@ const getArticleLatestComments = async (req, res) => {
 		const comments = await Comment.find({ article: foundArticle._id })
 			.sort({ createdAt: -1 })
 			.limit(limit > 0 ? limit : undefined)
-			.populate("commentator")
-			.populate({
-				path: "replies",
-				populate: { path: "replier" },
-			});
+			.populate([{path: "commentator", mode: 'User'}, {path: 'replies.replier', model: 'User'}]);
 
 		return res.status(200).json({
 			success: true,
