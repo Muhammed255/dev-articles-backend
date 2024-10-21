@@ -23,8 +23,10 @@ const articleComment = async (req, res) => {
 			article: article._id,
 			commentator: authUser._id,
 		});
+		article.comments.push(newComment);
 
 		await newComment.save();
+		await article.save();
 
 		return res.status(200).json({
 			success: true,
@@ -83,6 +85,16 @@ const removeComment = async (req, res) => {
 
 		if (foundComment.commentator._id.toString() !== userId) {
 			return res.status(403).json({ success: false, msg: "Unauthorized" });
+		}
+
+		const article = await ArticlePost.findOneAndUpdate(
+			{ _id: foundComment.article },
+			{ $pull: { comments: commentId } },
+			{ new: true }
+		);
+
+		if (!article) {
+			return res.status(404).json({ success: false, msg: "Article not found" });
 		}
 
 		await Reply.deleteMany({ comment: commentId });
@@ -173,6 +185,16 @@ const removeReply = async (req, res) => {
 			return res.status(403).json({ success: false, msg: "Unauthorized" });
 		}
 
+		const comment = await Comment.findOneAndUpdate(
+			{ _id: foundReply.comment },
+			{ $pull: { replies: replyId } },
+			{ new: true }
+		);
+
+		if (!comment) {
+			return res.status(404).json({ success: false, msg: "Comment not found" });
+		}
+
 		await Reply.findByIdAndDelete(replyId);
 
 		return res.status(200).json({ success: true, msg: "Reply deleted" });
@@ -203,7 +225,7 @@ const articleCommentReply = async (req, res) => {
 			reply: reply,
 			replier: authUser._id,
 		});
-		comment.replies.push(newReply)
+		comment.replies.push(newReply);
 
 		await newReply.save();
 		await comment.save();
