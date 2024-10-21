@@ -31,10 +31,10 @@ const userSchema = new Schema({
   bio: {
     type: String,
   },
-	gender: { type: String, required: true },
-  birthdate: { type: Date, required: true },
-  address: { type: String, required: true },
-  phone_number: { type: String, required: true },
+	gender: { type: String, required: false },
+  birthdate: { type: Date, required: false },
+  address: { type: String, required: false },
+  phone_number: { type: String, required: false },
   linkedInUrl: { type: String, required: false },
   stackoverflowUrl: { type: String, required: false },
   bookmarks: [
@@ -76,7 +76,10 @@ const userSchema = new Schema({
       default: [],
     },
   ],
-});
+	accessToken: {
+		type: String
+	},
+}, {timestamps: true});
 
 userSchema.plugin(uniqueValidator);
 

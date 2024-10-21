@@ -97,14 +97,19 @@ export default {
         appConfig.JWT_SECRET,
         { expiresIn: "1d" }
       );
+			user.accessToken = token;
+			await user.save();
       response.success = true;
       response.token = token;
       response.role = user.role;
       response.userId = user._id;
       response.expiresIn = 86400;
       response.msg = "LoggedIn successfully";
-      res.status(200).json({ ...response });
+      return res.status(200).json({ ...response });
     } catch (err) {
+			console.log('====================================');
+			console.log(err);
+			console.log('====================================');
       response.success = false;
       response.token = null;
       response.userId = null;
