@@ -36,6 +36,12 @@ const articlePostSchema = new Schema(
 			ref: "User",
 			required: true,
 		},
+		comments: [
+			{
+				type: ObjectId,
+				ref: "Comment",
+			},
+		],
 		likedBy: [
 			{
 				type: ObjectId,
@@ -59,7 +65,7 @@ const articlePostSchema = new Schema(
 		is_public: { type: Boolean, default: true },
 		hidden: { type: Boolean, default: false },
 		userLikedPosts: [
-			{ type: mongoose.Schema.Types.ObjectId, ref: "UserLikedPost" },
+			{ type: ObjectId, ref: "UserLikedPost" },
 		],
 	},
 	{ timestamps: true }
@@ -67,8 +73,8 @@ const articlePostSchema = new Schema(
 
 const UserLikedPostSchema = new mongoose.Schema(
 	{
-		user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-		article: { type: mongoose.Schema.Types.ObjectId, ref: "Article" },
+		user: { type: ObjectId, ref: "User" },
+		article: { type: ObjectId, ref: "Article" },
 		type: String,
 	},
 	{ timestamps: true }
