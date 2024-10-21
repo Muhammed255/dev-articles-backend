@@ -4,149 +4,115 @@ const Schema = mongoose.Schema;
 
 const ObjectId = Schema.Types.ObjectId;
 
-// Validate Function to check comment length
-let commentLengthChecker = (comment) => {
-	// Check if comment exists
-	if (!comment[0]) {
-		return false; // Return error
-	} else {
-		// Check comment length
-		if (comment[0].length < 1 || comment[0].length > 200) {
-			return false; // Return error if comment length requirement is not met
-		} else {
-			return true; // Return comment as valid
-		}
-	}
-};
-
-// Array of Comment validators
-const commentValidators = [
-	// First comment validator
-	{
-		validator: commentLengthChecker,
-		message: "Comments may not exceed 200 characters.",
-	},
-];
-
 // Declare the Schema of the Mongo model
-const articlePostSchema = new Schema({
-	title: {
+const articlePostSchema = new Schema(
+	{
+		title: {
+			type: String,
+			required: true,
+		},
+		sub_title: {
+			type: String,
+			required: true,
+		},
+		content: {
+			type: String,
+			required: true,
+		},
+		article_image: {
+			type: String,
+			required: true,
+		},
+		cloudinary_id: {
+			type: String,
+		},
+		topicId: {
+			type: ObjectId,
+			ref: "Topic",
+			required: true,
+		},
+		autherId: {
+			type: ObjectId,
+			ref: "User",
+			required: true,
+		},
+		likedBy: [
+			{
+				type: ObjectId,
+				ref: "User",
+			},
+		],
+		dislikedBy: [
+			{
+				type: ObjectId,
+				ref: "User",
+			},
+		],
+		likes: {
+			type: Number,
+			default: 0,
+		},
+		dislikes: {
+			type: Number,
+			default: 0,
+		},
+		is_public: { type: Boolean, default: true },
+		hidden: { type: Boolean, default: false },
+		userLikedPosts: [
+			{ type: mongoose.Schema.Types.ObjectId, ref: "UserLikedPost" },
+		],
+	},
+	{ timestamps: true }
+);
+
+const UserLikedPostSchema = new mongoose.Schema(
+	{
+		user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+		article: { type: mongoose.Schema.Types.ObjectId, ref: "Article" },
 		type: String,
-		required: true,
 	},
-	sub_title: {
-		type: String,
-		required: true,
-	},
-	content: {
-		type: String,
-		required: true,
-	},
-	article_image: {
-		type: String,
-		required: true,
-	},
-	cloudinary_id: {
-		type: String,
-	},
-	topicId: {
-		type: ObjectId,
-		ref: "Topic",
-		required: true,
-	},
-	autherId: {
-		type: ObjectId,
-		ref: "User",
-		required: true,
-	},
-	comments: [
+	{ timestamps: true }
+);
+
+articlePostSchema.statics.countAllComments = async function () {
+	const result = await this.aggregate([
 		{
-			comment: { type: String, validate: commentValidators },
-			commentator: { type: Schema.Types.ObjectId, ref: "User" },
-			comment_date: { type: Date, default: Date.now },
-			replies: [
-				{
-					reply: { type: String, validate: commentValidators },
-					replier: { type: Schema.Types.ObjectId, ref: "User" },
-					reply_date: { type: Date, default: Date.now },
+			$project: {
+				commentCount: { $size: "$comments" },
+				replyCount: {
+					$reduce: {
+						input: "$comments",
+						initialValue: 0,
+						in: { $add: ["$$value", { $size: "$$this.replies" }] },
+					},
 				},
-			],
+			},
 		},
-	],
-	created: {
-		type: Date,
-		default: Date.now,
-	},
-	likedBy: [
 		{
-			type: ObjectId,
-			ref: "User",
+			$group: {
+				_id: null,
+				totalComments: { $sum: "$commentCount" },
+				totalReplies: { $sum: "$replyCount" },
+			},
 		},
-	],
-	dislikedBy: [
 		{
-			type: ObjectId,
-			ref: "User",
+			$project: {
+				_id: 0,
+				totalComments: 1,
+				totalReplies: 1,
+				totalInteractions: { $add: ["$totalComments", "$totalReplies"] },
+			},
 		},
-	],
-	likes: {
-		type: Number,
-		default: 0,
-	},
-	dislikes: {
-		type: Number,
-		default: 0,
-	},
-	is_public: { type: Boolean, default: true },
-	hidden: { type: Boolean, default: false },
-	userLikedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserLikedPost' }]
-});
+	]);
 
-const UserLikedPostSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  article: { type: mongoose.Schema.Types.ObjectId, ref: 'Article' },
-  type: String
-});
-
-
-articlePostSchema.statics.countAllComments = async function() {
-  const result = await this.aggregate([
-    {
-      $project: {
-        commentCount: { $size: "$comments" },
-        replyCount: {
-          $reduce: {
-            input: "$comments",
-            initialValue: 0,
-            in: { $add: ["$$value", { $size: "$$this.replies" }] }
-          }
-        }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalComments: { $sum: "$commentCount" },
-        totalReplies: { $sum: "$replyCount" }
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        totalComments: 1,
-        totalReplies: 1,
-        totalInteractions: { $add: ["$totalComments", "$totalReplies"] }
-      }
-    }
-  ]);
-
-  return result[0] || { totalComments: 0, totalReplies: 0, totalInteractions: 0 };
+	return (
+		result[0] || { totalComments: 0, totalReplies: 0, totalInteractions: 0 }
+	);
 };
-
 
 articlePostSchema.index({ title: "text", sub_title: "text", content: "text" });
 
-const ArticlePost = mongoose.model('ArticlePost', articlePostSchema);
-const UserLikedPost = mongoose.model('UserLikedPost', UserLikedPostSchema);
+const ArticlePost = mongoose.model("ArticlePost", articlePostSchema);
+const UserLikedPost = mongoose.model("UserLikedPost", UserLikedPostSchema);
 
-export {ArticlePost, UserLikedPost}
+export { ArticlePost, UserLikedPost };
