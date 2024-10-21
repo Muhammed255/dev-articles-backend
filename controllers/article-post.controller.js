@@ -93,10 +93,20 @@ export default {
 	findArticle(req, res, next) {
 		let response = { success: false, msg: "", article: null };
 		ArticlePost.findById(req.params.postId)
-			.populate("autherId")
-			.populate("topicId")
-			.populate("comments.commentator")
-			.populate("comments.replies.replier")
+		.populate("autherId")
+		.populate("topicId")
+		.populate({
+			path: "comments",
+			populate: [
+				{ path: "replies" },
+				{ path: "commentator" },
+				{ path: "replies.replier" },
+			],
+		})
+		.populate({
+			path: "userLikedPosts",
+			populate: { path: "user" },
+		})
 			.then((article) => {
 				if (!article) {
 					response.msg = "Error: No article found";
