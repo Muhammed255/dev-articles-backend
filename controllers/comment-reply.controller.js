@@ -1,7 +1,7 @@
-import { ArticlePost } from "../models/article-post.model";
-import { Comment } from "../models/comment.model";
-import { Reply } from "../models/reply.model";
-import User from "../models/user.model";
+import { ArticlePost } from "../models/article-post.model.js";
+import { Comment } from "../models/comment.model.js";
+import { Reply } from "../models/reply.model.js";
+import User from "../models/user.model.js";
 
 const articleComment = async (req, res) => {
 	try {
@@ -109,7 +109,14 @@ const getArticleLatestComments = async (req, res) => {
 		const comments = await Comment.find({ article: foundArticle._id })
 			.sort({ createdAt: -1 })
 			.limit(limit > 0 ? limit : undefined)
-			.populate([{path: "commentator", mode: 'User'}, {path: 'replies.replier', model: 'User'}]);
+			.populate([
+				{ path: "commentator", model: "User" },
+				{
+					path: "replies",
+					model: "Reply",
+					populate: { path: "replier", model: "User" },
+				},
+			]);
 
 		return res.status(200).json({
 			success: true,
@@ -196,8 +203,10 @@ const articleCommentReply = async (req, res) => {
 			reply: reply,
 			replier: authUser._id,
 		});
+		comment.replies.push(newReply)
 
 		await newReply.save();
+		await comment.save();
 		await newReply.populate("replier");
 
 		return res
