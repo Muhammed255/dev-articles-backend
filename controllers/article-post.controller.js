@@ -197,14 +197,14 @@ export default {
 			const article = await ArticlePost.findById(req.params.postId);
 
 			const authUser = await User.findById(req.userData.userId);
-			if (authUser.role !== "admin") {
-				response.msg = "Unauthorized..";
-				return res.status(401).send({ response });
+			if (!authUser) {
+				response.msg = "No user found";
+				return res.status(401).send({ ...response });
 			}
 
-			if (article.autherId.toString() !== req.userData.userId.toString()) {
+			if (article.autherId._id.toString() !== authUser._id.toString()) {
 				response.msg = "Unauthorized..";
-				return res.status(401).send({ response });
+				return res.status(401).send({ ...response });
 			}
 
 			await cloudinaryApi.uploader.destroy(article.cloudinary_id, {
