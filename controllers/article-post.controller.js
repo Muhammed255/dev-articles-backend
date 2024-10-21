@@ -61,7 +61,6 @@ export default {
 			const articles = await ArticlePost.find(query)
 				.populate("autherId")
 				.populate("topicId")
-				.populate("comments")
 				.populate({
 					path: "comments",
 					populate: [
@@ -259,7 +258,6 @@ export default {
 			const articles = await ArticlePost.find(query)
 				.populate("topic")
 				.populate("user")
-				.populate("comments")
 				.populate({
 					path: "comments",
 					populate: [
