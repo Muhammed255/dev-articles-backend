@@ -25,6 +25,8 @@ const articleComment = async (req, res) => {
 		});
 		article.comments.push(newComment);
 
+		await newComment.populate("commentator")
+
 		await newComment.save();
 		await article.save();
 
