@@ -93,20 +93,20 @@ export default {
 	findArticle(req, res, next) {
 		let response = { success: false, msg: "", article: null };
 		ArticlePost.findById(req.params.postId)
-		.populate("autherId")
-		.populate("topicId")
-		.populate({
-			path: "comments",
-			populate: [
-				{ path: "replies" },
-				{ path: "commentator" },
-				{ path: "replies.replier" },
-			],
-		})
-		.populate({
-			path: "userLikedPosts",
-			populate: { path: "user" },
-		})
+			.populate("autherId")
+			.populate("topicId")
+			.populate({
+				path: "comments",
+				populate: [
+					{ path: "replies" },
+					{ path: "commentator" },
+					{ path: "replies.replier" },
+				],
+			})
+			.populate({
+				path: "userLikedPosts",
+				populate: { path: "user" },
+			})
 			.then((article) => {
 				if (!article) {
 					response.msg = "Error: No article found";
@@ -169,10 +169,11 @@ export default {
 			}
 
 			if (req.file) {
-				article.cloudinary_id && await cloudinaryApi.uploader.destroy(article.cloudinary_id, {
-					resource_type: "image",
-					invalidate: true,
-				});
+				article.cloudinary_id &&
+					(await cloudinaryApi.uploader.destroy(article.cloudinary_id, {
+						resource_type: "image",
+						invalidate: true,
+					}));
 			}
 			if (!req.body.article_image) {
 				const imageResult = await cloudinaryApi.uploader.upload(req.file.path, {
@@ -337,7 +338,21 @@ export default {
 			}
 			const fetchedArtices = await ArticlePost.find({
 				topicId: topic._id,
-			}).populate("autherId");
+			})
+				.populate("autherId")
+				.populate("topicId")
+				.populate({
+					path: "comments",
+					populate: [
+						{ path: "replies" },
+						{ path: "commentator" },
+						{ path: "replies.replier" },
+					],
+				})
+				.populate({
+					path: "userLikedPosts",
+					populate: { path: "user" },
+				});
 			return res.status(200).json({
 				success: true,
 				msg: "Fetched!",
@@ -463,8 +478,8 @@ export default {
 	},
 
 	async likeArticle(req, res, _next) {
-    try {
-      const user = await User.findOne({ _id: req.userData.userId });
+		try {
+			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
 				response.msg = "No user found..";
 				res.status(400).json({ ...response });
@@ -475,49 +490,57 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-      if (user._id.toString() === post.autherId._id.toString()) {
-        return res.status(400).json({ success: false, msg: "You cannot like your own article" });
-      }
+			if (user._id.toString() === post.autherId._id.toString()) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "You cannot like your own article" });
+			}
 
-      const fetchedUserLikedPost = await UserLikedPost.findOne({
-        article: post._id,
-        user: user._id,
-        type: 'like',
-      });
+			const fetchedUserLikedPost = await UserLikedPost.findOne({
+				article: post._id,
+				user: user._id,
+				type: "like",
+			});
 
-      if (fetchedUserLikedPost) {
-        return res.status(400).json({ success: false, msg: "Article already liked!" });
-      }
+			if (fetchedUserLikedPost) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "Article already liked!" });
+			}
 
-      const fetchedUserDisLikedPost = await UserLikedPost.findOne({
-        article: post._id,
-        user: user._id,
-        type: 'dislike',
-      });
+			const fetchedUserDisLikedPost = await UserLikedPost.findOne({
+				article: post._id,
+				user: user._id,
+				type: "dislike",
+			});
 
-      if (fetchedUserDisLikedPost) {
-        await UserLikedPost.deleteOne({ _id: fetchedUserDisLikedPost._id });
-      }
+			if (fetchedUserDisLikedPost) {
+				await UserLikedPost.deleteOne({ _id: fetchedUserDisLikedPost._id });
+			}
 
-      const newLike = new UserLikedPost({
-        article: post._id,
-        user: user._id,
-        type: 'like',
-      });
+			const newLike = new UserLikedPost({
+				article: post._id,
+				user: user._id,
+				type: "like",
+			});
 
-      await newLike.save();
+			await newLike.save();
 
-      const updatedArticle = await this.findOneArticle(req.body.id);
+			const updatedArticle = await this.findOneArticle(req.body.id);
 
-      return res.status(200).json({ success: true, msg: "Article liked!", updatedArticle });
-    } catch (err) {
-      return res.status(500).json({ success: false, msg: "Error occurred! " + err });
-    }
-  },
+			return res
+				.status(200)
+				.json({ success: true, msg: "Article liked!", updatedArticle });
+		} catch (err) {
+			return res
+				.status(500)
+				.json({ success: false, msg: "Error occurred! " + err });
+		}
+	},
 
 	async disLikeArticle(req, res, _next) {
-    try {
-      const user = await User.findOne({ _id: req.userData.userId });
+		try {
+			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
 				response.msg = "No user found..";
 				res.status(400).json({ ...response });
@@ -528,51 +551,60 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-      if (user._id.toString() === post.autherId._id.toString()) {
-        return res.status(400).json({ success: false, msg: "You cannot dislike your own article" });
-      }
+			if (user._id.toString() === post.autherId._id.toString()) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "You cannot dislike your own article" });
+			}
 
+			const fetchedUserDisLikedPost = await UserLikedPost.findOne({
+				article: post._id,
+				user: user._id,
+				type: "dislike",
+			});
 
-      const fetchedUserDisLikedPost = await UserLikedPost.findOne({
-        article: post._id,
-        user: user._id,
-        type: 'dislike',
-      });
+			if (fetchedUserDisLikedPost) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "Article already disliked!" });
+			}
 
-      if (fetchedUserDisLikedPost) {
-        return res.status(400).json({ success: false, msg: "Article already disliked!" });
-      }
+			const fetchedUserLikedPost = await UserLikedPost.findOne({
+				article: post._id,
+				user: user._id,
+				type: "like",
+			});
 
-      const fetchedUserLikedPost = await UserLikedPost.findOne({
-        article: post._id,
-        user: user._id,
-        type: 'like',
-      });
+			if (fetchedUserLikedPost) {
+				await UserLikedPost.deleteOne({ _id: fetchedUserLikedPost._id });
+			}
 
-      if (fetchedUserLikedPost) {
-        await UserLikedPost.deleteOne({ _id: fetchedUserLikedPost._id });
-      }
+			const newDislike = new UserLikedPost({
+				article: post._id,
+				user: user._id,
+				type: "dislike",
+			});
 
-      const newDislike = new UserLikedPost({
-        article: post._id,
-        user: user._id,
-        type: 'dislike',
-      });
+			await newDislike.save();
 
-      await newDislike.save();
+			const updatedArticle = await ArticlePost.findById(req.body.id).populate(
+				"autherId"
+			);
 
-      const updatedArticle = await ArticlePost.findById(req.body.id).populate("autherId");
-
-      return res.status(200).json({ success: true, msg: "Article disliked!", updatedArticle });
-    } catch (err) {
-      return res.status(500).json({ success: false, msg: "Error occurred! " + err });
-    }
-  },
+			return res
+				.status(200)
+				.json({ success: true, msg: "Article disliked!", updatedArticle });
+		} catch (err) {
+			return res
+				.status(500)
+				.json({ success: false, msg: "Error occurred! " + err });
+		}
+	},
 
 	async getUserArticlesByType(req, res, _next) {
-    try {
-      const type = req.body.type;
-      const userId = req.params.userId;
+		try {
+			const type = req.body.type;
+			const userId = req.params.userId;
 
 			const user = await User.findOne({ _id: userId });
 			if (!user) {
@@ -580,16 +612,20 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-      const fetchedUserLikedPost = await UserLikedPost.find({
-        user: user._id,
-        type: type
-      }).populate('user').populate('article');
+			const fetchedUserLikedPost = await UserLikedPost.find({
+				user: user._id,
+				type: type,
+			})
+				.populate("user")
+				.populate("article");
 
-      return res.status(200).json({ articles: fetchedUserLikedPost });
-    } catch (err) {
-      return res.status(500).json({ success: false, msg: "Error occurred! " + err });
-    }
-  },
+			return res.status(200).json({ articles: fetchedUserLikedPost });
+		} catch (err) {
+			return res
+				.status(500)
+				.json({ success: false, msg: "Error occurred! " + err });
+		}
+	},
 
 	async getSpecificAdminArticles(req, res, next) {
 		let response = { success: false, msg: "", articles: null };
@@ -619,64 +655,82 @@ export default {
 		}
 	},
 	async makePostHidden(req, res, _next) {
-    try {
-      const user = await User.findOne({ _id: req.userData.userId });
+		try {
+			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
 				response.msg = "No user found..";
 				res.status(400).json({ ...response });
 			}
-			const article = await ArticlePost.findById(req.body.articleId).populate("autherId");
+			const article = await ArticlePost.findById(req.body.articleId).populate(
+				"autherId"
+			);
 			if (!post) {
 				response.msg = "No post found..";
 				res.status(400).json({ ...response });
 			}
 
+			if (authUser._id.toString() !== article.autherId._id.toString()) {
+				return res.status(402).json({ success: false, msg: "Unauthorized!" });
+			}
 
-      if (authUser._id.toString() !== article.autherId._id.toString()) {
-        return res.status(402).json({ success: false, msg: "Unauthorized!" });
-      }
+			if (article.hidden) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "Article already hidden" });
+			}
 
-      if (article.hidden) {
-        return res.status(400).json({ success: false, msg: "Article already hidden" });
-      }
+			await ArticlePost.findByIdAndUpdate(article._id, { hidden: true });
 
-      await ArticlePost.findByIdAndUpdate(article._id, { hidden: true });
+			return res
+				.status(200)
+				.json({ success: true, msg: "Article hidden from your profile!" });
+		} catch (err) {
+			console.log(err);
+			return res.status(500).json({
+				success: false,
+				msg: "Error Occurred: " + err.message,
+				articles: null,
+			});
+		}
+	},
 
-      return res.status(200).json({ success: true, msg: "Article hidden from your profile!" });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ success: false, msg: "Error Occurred: " + err.message, articles: null });
-    }
-  },
-
-  async removePostHidden(req, res, _next) {
-    try {
-      const user = await User.findOne({ _id: req.userData.userId });
+	async removePostHidden(req, res, _next) {
+		try {
+			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
 				response.msg = "No user found..";
 				res.status(400).json({ ...response });
 			}
-			const article = await ArticlePost.findById(req.body.articleId).populate("autherId");
+			const article = await ArticlePost.findById(req.body.articleId).populate(
+				"autherId"
+			);
 			if (!post) {
 				response.msg = "No post found..";
 				res.status(400).json({ ...response });
 			}
 
+			if (authUser._id.toString() !== article.autherId._id.toString()) {
+				return res.status(402).json({ success: false, msg: "Unauthorized!" });
+			}
 
-      if (authUser._id.toString() !== article.autherId._id.toString()) {
-        return res.status(402).json({ success: false, msg: "Unauthorized!" });
-      }
+			if (!article.hidden) {
+				return res
+					.status(400)
+					.json({ success: false, msg: "Article is not hidden" });
+			}
 
-      if (!article.hidden) {
-        return res.status(400).json({ success: false, msg: "Article is not hidden" });
-      }
+			await ArticlePost.findByIdAndUpdate(article._id, { hidden: false });
 
-      await ArticlePost.findByIdAndUpdate(article._id, { hidden: false });
-
-      return res.status(200).json({ success: true, msg: "Article removed from hidden" });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ success: false, msg: "Error Occurred: " + err.message, articles: null });
-    }
-  }
+			return res
+				.status(200)
+				.json({ success: true, msg: "Article removed from hidden" });
+		} catch (err) {
+			console.log(err);
+			return res.status(500).json({
+				success: false,
+				msg: "Error Occurred: " + err.message,
+				articles: null,
+			});
+		}
+	},
 };
