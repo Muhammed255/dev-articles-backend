@@ -77,9 +77,6 @@ const userSchema = new Schema(
 				default: [],
 			},
 		],
-		accessToken: {
-			type: String,
-		},
 	},
 	{ timestamps: true }
 );

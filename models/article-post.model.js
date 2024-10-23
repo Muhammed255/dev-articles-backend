@@ -77,7 +77,7 @@ const articlePostSchema = new Schema(
 const UserLikedPostSchema = new mongoose.Schema(
 	{
 		user: { type: ObjectId, ref: "User" },
-		article: { type: ObjectId, ref: "Article" },
+		article: { type: ObjectId, ref: "ArticlePost" },
 		type: String,
 	},
 	{ timestamps: true }
