@@ -40,18 +40,21 @@ const articlePostSchema = new Schema(
 			{
 				type: ObjectId,
 				ref: "Comment",
+				default: []
 			},
 		],
 		likedBy: [
 			{
 				type: ObjectId,
 				ref: "User",
+				default: []
 			},
 		],
 		dislikedBy: [
 			{
 				type: ObjectId,
 				ref: "User",
+				default: []
 			},
 		],
 		likes: {
@@ -65,7 +68,7 @@ const articlePostSchema = new Schema(
 		is_public: { type: Boolean, default: true },
 		hidden: { type: Boolean, default: false },
 		userLikedPosts: [
-			{ type: ObjectId, ref: "UserLikedPost" },
+			{ type: ObjectId, ref: "UserLikedPost", default: [] },
 		],
 	},
 	{ timestamps: true }

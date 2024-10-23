@@ -6,6 +6,7 @@ import {
 	editComment,
 	editReply,
 	getArticleLatestComments,
+	getUserLatestComments,
 	removeComment,
 	removeReply,
 } from "../controllers/comment-reply.controller.js";
@@ -109,6 +110,34 @@ import {
  *         description: Internal server error
  */
 
+
+/**
+ * @swagger
+ * /comment-reply/user-latest-comments:
+ *   post:
+ *     summary: Get user latest comments
+ *     tags:
+ *       - Comments
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               limit:
+ *                 type: number
+ *                 description: Number of comments to fetch
+ *     responses:
+ *       200:
+ *         description: User latest comments fetched successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 
 /**
  * @swagger
@@ -261,6 +290,12 @@ commentReplyRoutes.use(checkAuth);
 commentReplyRoutes.post("/add-comment", articleComment);
 commentReplyRoutes.put("/edit-comment", editComment);
 commentReplyRoutes.delete("/remove-comment/:id", removeComment);
+
+commentReplyRoutes.post(
+	"/user-latest-comments",
+	getUserLatestComments
+);
+
 commentReplyRoutes.post(
 	"/latest-comments/:articleId",
 	getArticleLatestComments
