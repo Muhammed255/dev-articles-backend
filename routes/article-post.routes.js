@@ -332,6 +332,8 @@ import multer from "multer";
  *   post:
  *     summary: Get all articles by custom filters.
  *     tags: [Articles]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -639,7 +641,7 @@ articlePostRoutes.post(
 	articlePostController.articles_search
 );
 
-articlePostRoutes.post("/articles-by", articlePostController.getAllArticlesBy);
+articlePostRoutes.post("/articles-by", checkAuth, articlePostController.getAllArticlesBy);
 
 articlePostRoutes.post(
 	"/dislike-article",
