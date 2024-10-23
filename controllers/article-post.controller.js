@@ -90,43 +90,44 @@ export default {
 		}
 	},
 
-	findArticle(req, res, next) {
+	async findArticle(req, res, _next) {
 		let response = { success: false, msg: "", article: null };
-		ArticlePost.findById(req.params.postId)
-			.populate("autherId")
-			.populate("topicId")
-			.populate({
-				path: "comments",
-				populate: [
-					{ path: "replies" },
-					{ path: "commentator" },
-					{ path: "replies.replier" },
-				],
-			})
-			.populate({
-				path: "userLikedPosts",
-				populate: { path: "user" },
-			})
-			.then((article) => {
-				if (!article) {
-					response.msg = "Error: No article found";
-					return res.status(401).json({ ...response });
-				}
-
-				response.success = true;
-				response.msg = "Article fetched....";
-				response.article = article;
-				res.status(200).json({ ...response });
-			})
-			.catch((err) => {
-				response.success = false;
-				response.msg = "Error Occurred....";
-				response.article = null;
-				const error = new Error();
-				error.message = err;
-				next(error);
-				res.status(500).json({ ...response });
-			});
+		try {
+			const article = await ArticlePost.findById(req.params.postId).populate([
+				{ path: "autherId", model: "User" },
+				{ path: "topicId", model: "Topic" },
+				{
+					path: "userLikedPosts",
+					model: "UserLikedPost",
+					populate: { path: "user", model: "User" },
+				},
+				{
+					path: "comments",
+					model: "Comment",
+					populate: [
+						{
+							path: "replies",
+							model: "Reply",
+							populate: { path: "replier", model: "User" },
+						},
+						{ path: "commentator", model: "User" },
+					],
+				},
+			]);
+			if (!article) {
+				response.msg = "Error: No article found";
+				return res.status(401).json({ ...response });
+			}
+			response.success = true;
+			response.msg = "Article fetched....";
+			response.article = article;
+			return res.status(200).json({ ...response });
+		} catch (err) {
+			response.success = false;
+			response.msg = "Error Occurred...." + err.message;
+			response.article = null;
+			res.status(500).json({ ...response });
+		}
 	},
 
 	async updateArticle(req, res, next) {
@@ -338,21 +339,27 @@ export default {
 			}
 			const fetchedArtices = await ArticlePost.find({
 				topicId: topic._id,
-			})
-				.populate("autherId")
-				.populate("topicId")
-				.populate({
-					path: "comments",
-					populate: [
-						{ path: "replies" },
-						{ path: "commentator" },
-						{ path: "replies.replier" },
-					],
-				})
-				.populate({
+			}).populate([
+				{ path: "autherId", model: "User" },
+				{ path: "topicId", model: "Topic" },
+				{
 					path: "userLikedPosts",
-					populate: { path: "user" },
-				});
+					model: "UserLikedPost",
+					populate: { path: "user", model: "User" },
+				},
+				{
+					path: "comments",
+					model: "Comment",
+					populate: [
+						{
+							path: "replies",
+							model: "Reply",
+							populate: { path: "replier", model: "User" },
+						},
+						{ path: "commentator", model: "User" },
+					],
+				},
+			]);
 			return res.status(200).json({
 				success: true,
 				msg: "Fetched!",
