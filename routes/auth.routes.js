@@ -97,7 +97,7 @@ import { checkAuth } from "./../middleware/check-auth.js";
  *     summary: Get user by ID
  *     tags: [Auth]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -121,7 +121,7 @@ import { checkAuth } from "./../middleware/check-auth.js";
  *     summary: Get user by username
  *     tags: [Auth]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: username
@@ -145,7 +145,7 @@ import { checkAuth } from "./../middleware/check-auth.js";
  *     summary: Get authenticated user profile
  *     tags: [Auth]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: User profile
@@ -160,7 +160,7 @@ import { checkAuth } from "./../middleware/check-auth.js";
  * /auth/users:
  *   get:
  *     summary: Get all users
- *     tags: [Users]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:

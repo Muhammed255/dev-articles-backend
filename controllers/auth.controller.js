@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import { appConfig } from "../config/app-config.js";
+import { ArticlePost } from "../models/article-post.model.js";
 
 export default {
   async signup(req, res, _next) {
@@ -153,23 +154,24 @@ export default {
   },
 
   async findUserByUsername(req, res, next) {
-    let response = { success: false, msg: "", user: null };
+    let response = { success: false, msg: "", data: null };
     try {
       const user = await User.findOne({ username: req.params.username });
-      if (!user._id) {
+      if (!user) {
         response.msg = "No user found";
         return res.status(401).json({ ...response });
       }
+			const userArticles = await ArticlePost.find({autherId: user._id})
       response.msg = "fetched...";
       response.success = true;
-      response.user = user;
+      response.data = {user,articles: userArticles};
       return res.status(200).json({ ...response });
     } catch (e) {
       const err = new Error(e);
       next(err);
       response.msg = "Error Occurred...";
       response.success = false;
-      response.user = null;
+      response.data = null;
       return res.status(200).json({ ...response });
     }
   },
