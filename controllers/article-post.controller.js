@@ -205,12 +205,12 @@ export default {
 	async deleteArticle(req, res, next) {
 		let response = { success: false, msg: "" };
 		try {
-			const article = await ArticlePost.findById(req.params.postId);
+			const article = await ArticlePost.findById(req.params.postId).populate("autherId");
 
 			const authUser = await User.findById(req.userData.userId);
 			if (!authUser) {
 				response.msg = "No user found";
-				return res.status(401).send({ ...response });
+				return res.status(404).send({ ...response });
 			}
 
 			if (article.autherId._id.toString() !== authUser._id.toString()) {
@@ -475,12 +475,12 @@ export default {
 			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
 				response.msg = "No user found..";
-				res.status(400).json({ ...response });
+				return res.status(400).json({ ...response });
 			}
 			const post = await ArticlePost.findById(req.params.postId);
 			if (!post) {
 				response.msg = "No post found..";
-				res.status(400).json({ ...response });
+				return res.status(400).json({ ...response });
 			}
 
 			const foundUserBookmarks = await UserLikedPost.findOne({
@@ -495,7 +495,7 @@ export default {
 					.json({ success: false, msg: "Article is not in your bookmarks" });
 			}
 
-			await UserLikedPost.deleteOne({ _id: foundUserBookmarks._id });
+			await UserLikedPost.findByIdAndDelete(foundUserBookmarks._id);
 
 			return res
 				.status(200)
