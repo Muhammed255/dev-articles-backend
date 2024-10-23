@@ -199,3 +199,5 @@ authRouter.get("/user/:username", checkAuth, authController.findUserByUsername);
 authRouter.get("/users", checkAuth, authController.getUsers);
 
 authRouter.get("/profile", checkAuth, authController.getAuthProfle);
+
+authRouter.get("/logout", checkAuth, authController.logout);
