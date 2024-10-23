@@ -313,8 +313,33 @@ export default {
 			}
 
 			const fetchedUserLikedPost = await UserLikedPost.find(query)
-				.populate("user")
-				.populate("article");
+			.populate([
+				{
+					path: 'user',
+					model: 'User'
+				},
+				{
+					path: "article",
+					model: "ArticlePost",
+					populate: [
+						{ path: "autherId", model: "User" },
+						{ path: "topicId", model: "Topic" },
+
+						{
+							path: "comments",
+							model: "Comment",
+							populate: [
+								{
+									path: "replies",
+									model: "Reply",
+									populate: { path: "replier", model: "User" },
+								},
+								{ path: "commentator", model: "User" },
+							],
+						},
+					],
+				},
+			]);
 
 			return res.status(200).json({ articles: fetchedUserLikedPost });
 		} catch (err) {
@@ -610,7 +635,7 @@ export default {
 
 	async getUserArticlesByType(req, res, _next) {
 		try {
-			const where = req.body.where;
+			const type = req.body.type;
 			const userId = req.params.userId;
 
 			const user = await User.findOne({ _id: userId });
@@ -619,30 +644,9 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-			const fetchedUserLikedPost = await UserLikedPost.find(where)
+			const fetchedUserLikedPost = await UserLikedPost.find({user: user._id, type})
 				.populate("user")
-				.populate([
-					{
-						path: "article",
-						model: "ArticlePost",
-						populate: [
-							{ path: "autherId", model: "User" },
-							{ path: "topicId", model: "Topic" },
-							{
-								path: "comments",
-								model: "Comment",
-								populate: [
-									{
-										path: "replies",
-										model: "Reply",
-										populate: { path: "replier", model: "User" },
-									},
-									{ path: "commentator", model: "User" },
-								],
-							},
-						],
-					},
-				]);
+				.populate("article");
 
 			return res.status(200).json({ articles: fetchedUserLikedPost });
 		} catch (err) {
