@@ -110,6 +110,40 @@ const removeComment = async (req, res) => {
 	}
 };
 
+const getUserLatestComments = async (req, res) => {
+	try {
+		const { userId } = req.userData;
+		const { limit } = req.body;
+
+		const foundUser = await User.findById(userId);
+		if (!foundUser) {
+			return res.status(404).json({ success: false, msg: "User not found" });
+		}
+
+		const comments = await Comment.find({ commentator: foundUser._id })
+			.sort({ createdAt: -1 })
+			.limit(limit > 0 ? limit : undefined)
+			.populate([
+				{ path: "commentator", model: "User" },
+				{
+					path: "replies",
+					model: "Reply",
+					populate: { path: "replier", model: "User" },
+				},
+			]);
+
+		return res.status(200).json({
+			success: true,
+			msg: "User latest comments fetched",
+			comments,
+		});
+	} catch (err) {
+		return res
+			.status(500)
+			.json({ success: false, msg: "Error occurred: " + err.message });
+	}
+};
+
 const getArticleLatestComments = async (req, res) => {
 	try {
 		const { articleId } = req.params;
@@ -248,6 +282,7 @@ export {
 	articleCommentReply,
 	editComment,
 	editReply,
+	getUserLatestComments,
 	getArticleLatestComments,
 	removeComment,
 	removeReply,
