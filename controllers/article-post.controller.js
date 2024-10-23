@@ -621,7 +621,28 @@ export default {
 
 			const fetchedUserLikedPost = await UserLikedPost.find(where)
 				.populate("user")
-				.populate("article");
+				.populate([
+					{
+						path: "article",
+						model: "ArticlePost",
+						populate: [
+							{ path: "autherId", model: "User" },
+							{ path: "topicId", model: "Topic" },
+							{
+								path: "comments",
+								model: "Comment",
+								populate: [
+									{
+										path: "replies",
+										model: "Reply",
+										populate: { path: "replier", model: "User" },
+									},
+									{ path: "commentator", model: "User" },
+								],
+							},
+						],
+					},
+				]);
 
 			return res.status(200).json({ articles: fetchedUserLikedPost });
 		} catch (err) {
