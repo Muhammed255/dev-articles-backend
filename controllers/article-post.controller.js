@@ -610,7 +610,7 @@ export default {
 
 	async getUserArticlesByType(req, res, _next) {
 		try {
-			const type = req.body.type;
+			const where = req.body.where;
 			const userId = req.params.userId;
 
 			const user = await User.findOne({ _id: userId });
@@ -619,10 +619,7 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-			const fetchedUserLikedPost = await UserLikedPost.find({
-				user: user._id,
-				type: type,
-			})
+			const fetchedUserLikedPost = await UserLikedPost.find(where)
 				.populate("user")
 				.populate("article");
 
