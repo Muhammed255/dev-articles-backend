@@ -1,6 +1,7 @@
 import express from "express";
 import authController from "../controllers/auth.controller.js";
 import { checkAuth } from "./../middleware/check-auth.js";
+import { tokenUpdateMiddleware } from "../middleware/token-update.js";
 
 
 
@@ -192,12 +193,12 @@ authRouter.post("/signup", authController.signup);
 
 authRouter.post("/admin-signup", authController.admin_signup);
 
-authRouter.get("/:userId", checkAuth, authController.findUserById);
+authRouter.get("/:userId", checkAuth, tokenUpdateMiddleware, authController.findUserById);
 
-authRouter.get("/user/:username", checkAuth, authController.findUserByUsername);
+authRouter.get("/user/:username", checkAuth, tokenUpdateMiddleware, authController.findUserByUsername);
 
-authRouter.get("/users", checkAuth, authController.getUsers);
+authRouter.get("/users", checkAuth, tokenUpdateMiddleware, authController.getUsers);
 
-authRouter.get("/profile", checkAuth, authController.getAuthProfle);
+authRouter.get("/profile", checkAuth, tokenUpdateMiddleware, authController.getAuthProfle);
 
-authRouter.get("/logout", checkAuth, authController.logout);
+authRouter.get("/logout", checkAuth, tokenUpdateMiddleware, authController.logout);

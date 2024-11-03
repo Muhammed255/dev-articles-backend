@@ -205,7 +205,9 @@ export default {
 	async deleteArticle(req, res, next) {
 		let response = { success: false, msg: "" };
 		try {
-			const article = await ArticlePost.findById(req.params.postId).populate("autherId");
+			const article = await ArticlePost.findById(req.params.postId).populate(
+				"autherId"
+			);
 
 			const authUser = await User.findById(req.userData.userId);
 			if (!authUser) {
@@ -300,6 +302,7 @@ export default {
 			// Convert the 'where' object to a Mongoose-compatible query
 			const query = {};
 			for (const key in where) {
+				// where.hasOwnProperty(key) ==> This is a safety check to make sure we're only dealing with properties that directly belong to the where object and It's a good practice to avoid potential issues with inherited properties
 				if (where.hasOwnProperty(key)) {
 					// Handle nested properties if necessary
 					if (typeof where[key] === "object" && !Array.isArray(where[key])) {
@@ -312,11 +315,10 @@ export default {
 				}
 			}
 
-			const fetchedUserLikedPost = await UserLikedPost.find(query)
-			.populate([
+			const fetchedUserLikedPost = await UserLikedPost.find(query).populate([
 				{
-					path: 'user',
-					model: 'User'
+					path: "user",
+					model: "User",
 				},
 				{
 					path: "article",
@@ -399,31 +401,6 @@ export default {
 		}
 	},
 
-	async articles_search(req, res, _next) {
-		try {
-			const { searchString } = req.body;
-			const docs = await ArticlePost.find({
-				$or: [
-					{ title: { $regex: searchString, $options: "i" } },
-					{ sub_title: { $regex: searchString, $options: "i" } },
-					{ content: { $regex: searchString, $options: "i" } },
-				],
-			});
-			if (!docs) {
-				return res
-					.status(401)
-					.json({ success: false, msg: "Could not fetch!" });
-			}
-			return res
-				.status(200)
-				.json({ success: true, msg: "fetched", articles: docs });
-		} catch (err) {
-			return res
-				.status(500)
-				.json({ success: false, msg: "Error occured: " + err.message });
-		}
-	},
-
 	async addArticleToBookmark(req, res, next) {
 		let response = { success: false, msg: "" };
 		try {
@@ -469,18 +446,21 @@ export default {
 		}
 	},
 
-	async removeArticleFromBookmarks(req, res, next) {
-		let response = { success: false, msg: "" };
+	async removeArticleFromBookmarks(req, res, _next) {
 		try {
 			const user = await User.findOne({ _id: req.userData.userId });
 			if (!user) {
-				response.msg = "No user found..";
-				return res.status(400).json({ ...response });
+				return res.status(400).json({
+					success: false,
+					msg: "No user found..",
+				});
 			}
 			const post = await ArticlePost.findById(req.params.postId);
 			if (!post) {
-				response.msg = "No post found..";
-				return res.status(400).json({ ...response });
+				return res.status(400).json({
+					success: false,
+					msg: "No post found..",
+				});
 			}
 
 			const foundUserBookmarks = await UserLikedPost.findOne({
@@ -490,22 +470,23 @@ export default {
 			});
 
 			if (!foundUserBookmarks) {
-				return res
-					.status(400)
-					.json({ success: false, msg: "Article is not in your bookmarks" });
+				return res.status(400).json({
+					success: false,
+					msg: "Article is not in your bookmarks",
+				});
 			}
-
 			await UserLikedPost.findByIdAndDelete(foundUserBookmarks._id);
 
-			return res
-				.status(200)
-				.json({ success: true, msg: "Article removed from bookmarks" });
+			return res.status(200).json({
+				success: true,
+				msg: "Article removed from bookmarks",
+			});
 		} catch (err) {
-			response.success = false;
-			response.msg = "Error Occurred..";
-			const error = new Error(err);
-			next(error);
-			return res.status(500).json({ ...response });
+			console.log(err);
+			return res.status(500).json({
+				success: false,
+				msg: `Error Occurred: ${err.message}`,
+			});
 		}
 	},
 
@@ -644,7 +625,10 @@ export default {
 				res.status(400).json({ ...response });
 			}
 
-			const fetchedUserLikedPost = await UserLikedPost.find({user: user._id, type})
+			const fetchedUserLikedPost = await UserLikedPost.find({
+				user: user._id,
+				type,
+			})
 				.populate("user")
 				.populate("article");
 

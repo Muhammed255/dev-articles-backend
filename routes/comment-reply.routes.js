@@ -10,6 +10,7 @@ import {
 	removeComment,
 	removeReply,
 } from "../controllers/comment-reply.controller.js";
+import { tokenUpdateMiddleware } from "../middleware/token-update.js";
 
 
 /**
@@ -284,7 +285,7 @@ import {
 
 export const commentReplyRoutes = express.Router();
 
-commentReplyRoutes.use(checkAuth);
+commentReplyRoutes.use(checkAuth, tokenUpdateMiddleware);
 
 // Comment routes
 commentReplyRoutes.post("/add-comment", articleComment);

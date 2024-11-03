@@ -2,6 +2,7 @@ import express from "express";
 import { checkAuth } from "../middleware/check-auth.js";
 import articlePostController from "../controllers/article-post.controller.js";
 import multer from "multer";
+import { tokenUpdateMiddleware } from "../middleware/token-update.js";
 
 
 
@@ -622,6 +623,7 @@ export const fileFilter = (req, file, cb) => {
 articlePostRoutes.post(
 	"/add-post",
 	checkAuth,
+	tokenUpdateMiddleware,
 	multer({
 		storage: multer.diskStorage({}),
 		fileFilter: fileFilter,
@@ -633,6 +635,7 @@ articlePostRoutes.post(
 articlePostRoutes.post(
 	"/like-article",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.likeArticle
 );
 
@@ -641,11 +644,13 @@ articlePostRoutes.post(
 	articlePostController.articles_search
 );
 
-articlePostRoutes.post("/articles-by", checkAuth, articlePostController.getAllArticlesBy);
+articlePostRoutes.post("/articles-by", articlePostController.getAllArticlesBy);
+articlePostRoutes.post("/articles-by-auth-user", checkAuth, tokenUpdateMiddleware, articlePostController.getAllArticlesBy);
 
 articlePostRoutes.post(
 	"/dislike-article",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.disLikeArticle
 );
 
@@ -657,17 +662,20 @@ articlePostRoutes.post(
 articlePostRoutes.post(
 	"/user-articles-by-type",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.getUserArticlesByType
 );
 
 articlePostRoutes.post(
 	"/make-article-hidden",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.makePostHidden
 );
 articlePostRoutes.post(
 	"/remove-article-hidden",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.removePostHidden
 );
 
@@ -676,12 +684,14 @@ articlePostRoutes.get("/get-articles", articlePostController.getArticles);
 articlePostRoutes.put(
 	"/add-to-bookmark/:postId",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.addArticleToBookmark
 );
 
 articlePostRoutes.put(
 	"/remove-from-bookmark/:postId",
 	checkAuth,
+	tokenUpdateMiddleware,
 	articlePostController.removeArticleFromBookmarks
 );
 
@@ -693,6 +703,7 @@ articlePostRoutes.get(
 articlePostRoutes.put(
 	"/:postId",
 	checkAuth,
+	tokenUpdateMiddleware,
 	multer({ storage: multer.diskStorage({}), fileFilter: fileFilter }).single(
 		"article_image"
 	),
@@ -702,7 +713,7 @@ articlePostRoutes.put(
 articlePostRoutes
 	.route("/:postId")
 	.get(articlePostController.findArticle)
-	.delete(checkAuth, articlePostController.deleteArticle);
+	.delete(checkAuth, tokenUpdateMiddleware, articlePostController.deleteArticle);
 
 articlePostRoutes.get(
 	"/topic-articles/:topicId",

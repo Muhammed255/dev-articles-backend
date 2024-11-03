@@ -1,5 +1,7 @@
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import express from "express";
+import path from 'path'
 
 const swaggerDefinition = {
   openapi: "3.0.0",
@@ -25,13 +27,32 @@ const swaggerDefinition = {
   },
 };
 
+
 const options = {
   swaggerDefinition,
-  apis: ["./routes/*.js"], // Paths to your route files
+  apis: process.env.NODE_ENV === 'development' ? ["./routes/*.js"] : [path.join(__dirname , ".." ,".." ,"routes", "*.routes.js")],
 };
 
-const swaggerSpec = swaggerJSDoc(options);
+// const options = {
+//   swaggerDefinition,
+//   apis: ["../routes/*.js", "../../routes/*.js", "./routes/*.js", "./**/*.route.js", "./**/*.routes.js"]
+// };
 
-export default function swaggerDocs(app) {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-}
+export const setupSwagger = (app) => {
+	console.log('====================================');
+	console.log("__DIRENAME", __dirname, path.join(__dirname , ".." ,".." ,"routes", "*.routes.js"));
+	console.log('====================================');
+  const swaggerSpec = swaggerJSDoc(options);
+  const swaggerRouter = express.Router();
+
+  swaggerRouter.use("/", swaggerUi.serve);
+  swaggerRouter.get("/", swaggerUi.setup(swaggerSpec));
+
+  app.use("/api-docs", swaggerRouter);
+};
+
+
+
+// export default function swaggerDocs(app) {
+//   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// }

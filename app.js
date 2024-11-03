@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 import { appConfig } from "./config/app-config.js";
 import routes from "./routes/routes.js";
-import swaggerDocs from "./config/swagger.js";
+import { setupSwagger } from "./config/swagger.js";
 import {
 	errorLogger,
 	httpLogger,
@@ -22,6 +22,9 @@ app.use(express.json());
 
 app.use(httpLogger);
 
+//Setup CORS
+app.use(cors({ origin: "*" }));
+
 // Mongoose Connection to Database
 mongoose.Promise = global.Promise;
 
@@ -31,12 +34,21 @@ mongoose
 	.catch((err) => logger.error("Error connecting to MongoDB", err));
 setupMongooseLogging();
 
-//Setup CORS
-app.use(cors({ origin: "*" }));
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 routes(app);
 app.use(errorLogger);
 
-swaggerDocs(app);
+setupSwagger(app);
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Not Found',
+    status: 404
+  });
+});
+
 
 export default app;

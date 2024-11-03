@@ -106,6 +106,7 @@ export default {
 			response.userId = user._id;
 			response.expiresIn = 86400;
 			response.msg = "LoggedIn successfully";
+			res.set('New-Access-Token', token);
 			return res.status(200).json({ ...response });
 		} catch (err) {
 			response.msg = "Auth failed..." + err.message;
