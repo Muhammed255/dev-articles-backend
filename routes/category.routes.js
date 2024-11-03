@@ -1,6 +1,7 @@
 import express from "express";
 import categoryController from "../controllers/category.controller.js";
 import { checkAuth } from "../middleware/check-auth.js";
+import { tokenUpdateMiddleware } from "../middleware/token-update.js";
 
 /**
  * @swagger
@@ -176,13 +177,13 @@ import { checkAuth } from "../middleware/check-auth.js";
 
 export const categoryRoutes = express.Router();
 
-categoryRoutes.post("/new-cat", checkAuth, categoryController.create_category);
+categoryRoutes.post("/new-cat", checkAuth, tokenUpdateMiddleware, categoryController.create_category);
 
 categoryRoutes.get("/get-all", categoryController.findAllCategories);
 
 categoryRoutes.get(
 	"/admin-categories",
-	checkAuth,
+	checkAuth,tokenUpdateMiddleware,
 	categoryController.findAdminCategories
 );
 
@@ -191,5 +192,5 @@ categoryRoutes.get("/join", categoryController.getTopicsByCategory);
 categoryRoutes
 	.route("/:catId")
 	.get(categoryController.findCategoryById)
-	.put(checkAuth, categoryController.updateCategory)
-	.delete(checkAuth, categoryController.removeCategory);
+	.put(checkAuth, tokenUpdateMiddleware, categoryController.updateCategory)
+	.delete(checkAuth, tokenUpdateMiddleware, categoryController.removeCategory);

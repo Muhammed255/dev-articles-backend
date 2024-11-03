@@ -11,6 +11,7 @@ import {
 } from "../controllers/user.controller.js";
 import multer from "multer";
 import { fileFilter } from "./article-post.routes.js";
+import { tokenUpdateMiddleware } from "../middleware/token-update.js";
 
 
 /**
@@ -257,16 +258,17 @@ import { fileFilter } from "./article-post.routes.js";
 
 export const userRoutes = express.Router();
 
-userRoutes.get("/get-dashboard", checkAuth, getDashboard);
+userRoutes.get("/get-dashboard", checkAuth, tokenUpdateMiddleware, getDashboard);
 
-userRoutes.put("/update-profile", checkAuth, updateProfile);
+userRoutes.put("/update-profile", checkAuth, tokenUpdateMiddleware, updateProfile);
 
-userRoutes.put("/update-password", checkAuth, updatePassword);
+userRoutes.put("/update-password", checkAuth, tokenUpdateMiddleware, updatePassword);
 
 // Image update route using multer to handle file upload
 userRoutes.put(
 	"/update-image",
 	checkAuth,
+	tokenUpdateMiddleware,
 	multer({
 		storage: multer.diskStorage({}),
 		fileFilter: fileFilter,
@@ -275,6 +277,6 @@ userRoutes.put(
 	updateImage
 );
 
-userRoutes.put("/follow/:userId", checkAuth, followUser);
-userRoutes.put("/unfollow/:userId", checkAuth, unfollowUser);
-userRoutes.get("/is-follow/:userId", checkAuth, isFollow);
+userRoutes.put("/follow/:userId", checkAuth, tokenUpdateMiddleware, followUser);
+userRoutes.put("/unfollow/:userId", checkAuth, tokenUpdateMiddleware, unfollowUser);
+userRoutes.get("/is-follow/:userId", checkAuth, tokenUpdateMiddleware, isFollow);

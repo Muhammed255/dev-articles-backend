@@ -1,8 +1,24 @@
 [functions]
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "swagger-ui-express", "swagger-jsdoc"]
   node_bundler = "esbuild"
 [[redirects]]
   force = true
   from = "/api/*"
   status = 200
   to = "/.netlify/functions/api/:splat"
+[[redirects]]
+  from = "/"
+  to = "/api-docs"
+  status = 302
+  force = true
+[[redirects]]
+  from = "/api-docs"
+  to = "/.netlify/functions/api/api-docs"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api-docs/*"
+  to = "/.netlify/functions/api/api-docs/:splat"
+  status = 200
+  force = true
