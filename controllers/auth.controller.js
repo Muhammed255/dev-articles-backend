@@ -103,7 +103,7 @@ export default {
 			response.success = true;
 			response.token = token;
 			response.role = user.role;
-			response.userId = user._id;
+			response.user = user;
 			response.expiresIn = 86400;
 			response.msg = "LoggedIn successfully";
 			res.set('New-Access-Token', token);
