@@ -19,6 +19,11 @@ var categorySchema = new Schema(
 			ref: "User",
 			required: true,
 		},
+		topics: [{
+			type: ObjectId,
+			ref: 'Topic',
+			default: []
+		}]
 	},
 	{ timestamps: true }
 );

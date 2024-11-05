@@ -39,9 +39,6 @@ const options = {
 // };
 
 export const setupSwagger = (app) => {
-	console.log('====================================');
-	console.log("__DIRENAME", __dirname, path.join(__dirname , ".." ,".." ,"routes", "*.routes.js"));
-	console.log('====================================');
   const swaggerSpec = swaggerJSDoc(options);
   const swaggerRouter = express.Router();
 

@@ -12,10 +12,7 @@ const apiLogFormat = winston.format((info) => {
 		const statusColor =
 			status >= 400 ? chalk.red : status >= 300 ? chalk.yellow : chalk.green;
 
-		info.message = `${chalk.blue(req.method)} ${chalk.cyan(req.originalUrl)}
-										${statusColor(status)} ${chalk.yellow(responseTime + "ms")}
-										${chalk.magenta("Query:")} ${JSON.stringify(req.query)}
-										${chalk.magenta("Response Time:")} ${responseTime}ms`.trim();
+		info.message = `${chalk.blue(req.method)} ${chalk.cyan(req.originalUrl)} ${statusColor(status)} ${chalk.yellow(responseTime + "ms")} ${chalk.magenta("Query:")} ${JSON.stringify(req.query)} ${chalk.magenta("Response Time:")} ${responseTime}ms`.trim();
 
 		delete info.meta;
 	}
