@@ -189,12 +189,15 @@ export default {
 				topicsByCat: categories
 			});
 		} catch (error) {
-			next(new Error(`Failed to fetch topics: ${error.message}`));
+			console.log('====================================');
+			console.log(error);
+			console.log('====================================');
 			return res.status(500).json({
 				success: false,
-				msg: "Error occurred while fetching topics",
+				msg: "Error occurred while fetching topics " + error,
 				topicsByCat: null
 			});
+			// next(new Error(`Failed to fetch topics: ${error.message}`));
 		}
 	}
 };
