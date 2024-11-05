@@ -173,31 +173,28 @@ export default {
     }
   },
 
-  getTopicsByCategory(req, res, next) {
-    let response = { success: false, msg: "", topicsByCat: null };
-    Category.aggregate([
-      {
-        $lookup: {
-          from: "topics",
-          localField: "_id",
-          foreignField: "categoryId",
-          as: "TopicsCategories",
-        },
-      },
-    ])
-      .then((result) => {
-        response.success = true;
-        response.msg = "Fetched....";
-        response.topicsByCat = result;
-        res.status(200).json({ ...response });
-      })
-      .catch((err) => {
-        response.success = false;
-        response.msg = "Error Occurred....";
-        response.topicsByCat = null;
-        const error = new Error(err);
-        next(error);
-        res.status(500).json({ ...response });
-      });
-  },
+  async getTopicsByCategory(req, res, next) {
+    try {
+			const categories = await Category.find()
+				.populate({
+					path: 'topics',  // Assuming you have defined a virtual or ref in your Category schema
+					select: '-__v',  // Exclude version field
+
+				})
+				.lean();  // Convert to plain JavaScript object for better performance
+
+			return res.status(200).json({
+				success: true,
+				msg: "Fetched successfully",
+				topicsByCat: categories
+			});
+		} catch (error) {
+			next(new Error(`Failed to fetch topics: ${error.message}`));
+			return res.status(500).json({
+				success: false,
+				msg: "Error occurred while fetching topics",
+				topicsByCat: null
+			});
+		}
+	}
 };
