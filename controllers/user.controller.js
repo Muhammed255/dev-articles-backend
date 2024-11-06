@@ -1,6 +1,8 @@
 import cloudinaryApi from "../config/cloudinary-api.js";
 import { ArticlePost, UserLikedPost } from "../models/article-post.model.js";
 import Category from "../models/category.model.js";
+import { Comment } from "../models/comment.model.js";
+import { Reply } from "../models/reply.model.js";
 import Topic from "../models/topic.model.js";
 import User from "../models/user.model.js";
 
@@ -117,7 +119,12 @@ export const updateProfile = async (req, res, _next) => {
 				stackoverflowUrl,
 			},
 			{ new: true, runValidators: true } // `new: true` returns the updated document
-		);
+		).populate([
+			{ path: "bookmarks", model: "ArticlePost" },
+			{ path: "likes", model: "ArticlePost" },
+			{ path: "followers", model: "User" },
+			{ path: "following", model: "User" },
+		]);
 
 		if (!updatedUser) {
 			return res.status(404).json({ success: false, msg: "User not found" });
@@ -245,7 +252,7 @@ export const getDashboard = async (req, res) => {
 					categoriesCount,
 					topicsCount,
 					articlesCount,
-					commentsCount, //{ totalComments: number, totalReplies: number, totalInteractions(comments and replies): number }
+					commentsCount,
 					repliesCount,
 					likesCount,
 					dislikesCount
@@ -253,7 +260,8 @@ export const getDashboard = async (req, res) => {
 					Category.countDocuments(),
 					Topic.countDocuments(),
 					ArticlePost.countDocuments(),
-					ArticlePost.countAllComments(),
+					Comment.countDocuments(),
+					Reply.countDocuments(),
 					UserLikedPost.countDocuments({ type: 'like' }),
 					UserLikedPost.countDocuments({ type: 'dislike' })
 			]);
