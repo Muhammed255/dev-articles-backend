@@ -1,4 +1,5 @@
 import cloudinaryApi from "../config/cloudinary-api.js";
+import Category from "../models/category.model.js";
 import Topic from "../models/topic.model.js";
 import User from "../models/user.model.js";
 
@@ -13,12 +14,17 @@ export default {
         return res.status(401).send(response);
       }
 
+			const foundCategory = await Category.findOne({_id: categoryId})
+			if(!foundCategory) {
+				return res.status(404).json({success: false, msg: "No category found!"})
+			}
+
       const imageResult = await cloudinaryApi.uploader.upload(req.file.path, {
         folder: "dev-articles/topics",
         transformation: [{ width: 500, height: 500, crop: "limit" }],
       });
 
-      const newTopic = new Topic({
+      const newTopic = Topic.create({
         name,
         description,
         categoryId,
@@ -27,7 +33,9 @@ export default {
         image: imageResult.secure_url,
       });
 
-      await newTopic.save();
+			foundCategory.topics.push(newTopic._id)
+			await foundCategory.save()
+
       response.success = true;
       response.msg = "Topic created....";
       res.status(200).json(response);
@@ -197,10 +205,18 @@ export default {
         });
       }
 
+			const foundCategory = await Category.findOne({_id: topicToDelete.categoryId})
+			if(!foundCategory) {
+				return res.status(404).json({success: false, msg: "No category found!"})
+			}
+
       await Topic.findOneAndRemove({
         _id: req.params.topicId,
         userId: req.userData.userId,
       });
+
+			foundCategory.topics.pull(req.params.topicId)
+			await foundCategory.save()
 
       response.success = true;
       response.msg = "Topic removed successfully";
