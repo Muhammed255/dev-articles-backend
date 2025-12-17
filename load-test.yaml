@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+scenarios:
+  - name: "Stress test articles API"
+    flow:
+      - post:
+          url: "/api/articles"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            title: "Load Test Article"
+            content: "Content"
